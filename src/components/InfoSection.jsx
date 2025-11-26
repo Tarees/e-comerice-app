@@ -26,7 +26,7 @@ const InfoSection = () => {
     {
       icon: <FaMoneyBill className="text-3xl text-red-600" />,
       title: "Discount",
-      description: "Up to 90% off"
+      description: "Up to 60% off"
     },
   ]
 
