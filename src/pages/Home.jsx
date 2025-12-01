@@ -3,18 +3,26 @@ import { Categories, productData } from "../assets/mockData";
 import HeroImage from "../assets/images/slider3.png.png";
 import InfoSection from "../components/InfoSection";
 import CategorySection from "../components/CategorySection";
-import { setProducts } from "../redux/ProductSlice";
+import { setProducts, setCategory } from "../redux/ProductSlice";
 import { useDispatch, useSelector } from "react-redux";
 import ProductCard from "../components/ProductCard";
-import Shop from "./Shop";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const productState = useSelector((state) => state.product);
 
   useEffect(() => {
     dispatch(setProducts(productData));
   }, [dispatch]);
+
+  const handleCategoryClick = (category) => {
+    // Convert category name to lowercase for matching
+    const categoryValue = category.toLowerCase();
+    dispatch(setCategory(categoryValue));
+    navigate("/shop");
+  };
 
   return (
     <div className="bg-white mt-2 px-4 md:px-16 lg:px-24">
@@ -25,7 +33,11 @@ const Home = () => {
           </div>
           <ul className="space-y-4 bg-gray-100 p-3 border">
             {Categories.map((category, index) => (
-              <li key={index} className="flex items-center text-sm font-medium">
+              <li
+                key={index}
+                className="flex items-center text-sm font-medium cursor-pointer hover:text-red-600 transition-colors"
+                onClick={() => handleCategoryClick(category)}
+              >
                 <div className="w-2 h-2 border border-red-500 rounded-full mr-2"></div>
                 {category}
               </li>
@@ -41,7 +53,10 @@ const Home = () => {
             <p className="text-xl mt-2.5 font-bold text-gray-800">
               All your needs at one place
             </p>
-            <button className="bg-red-600 px-8 py-1.5 text-white mt-4 hover:bg-red-700 transform transition-transform duration-300 hover:scale-105 cursor-pointer rounded-xl">
+            <button
+              className="bg-red-600 px-8 py-1.5 text-white mt-4 hover:bg-red-700 transform transition-transform duration-300 hover:scale-105 cursor-pointer rounded-xl"
+              onClick={() => navigate("/shop")}
+            >
               Shop Now
             </button>
           </div>
@@ -55,13 +70,14 @@ const Home = () => {
         <h2 className="text-2xl font-bold text-center mb-6">Top Products</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 cursor-pointer">
-  {productState.products &&
-    productState.products.slice(0, 5).map((product) => (
-      <ProductCard key={product.id} product={product} />
-    ))}
+          {productState.products &&
+            productState.products
+              .slice(0, 5)
+              .map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
         </div>
       </div>
-      <Shop/>
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  products: [], // ✅ This empty array fixes the crash
+  products: [],
   totalQuantity: 0,
   totalPrice: 0,
 };
@@ -30,8 +30,48 @@ const cartSlice = createSlice({
       state.totalPrice += newItem.price;
       state.totalQuantity++;
     },
+    removeFromCart(state, action) {
+      const id = action.payload;
+      const item = state.products.find((item) => item.id === id);
+      if (item) {
+        state.totalPrice -= item.totalPrice;
+        state.totalQuantity -= item.quantity;
+        state.products = state.products.filter((item) => item.id !== id);
+      }
+    },
+    incrementQuantity(state, action) {
+      const id = action.payload;
+      const item = state.products.find((item) => item.id === id);
+      if (item) {
+        item.quantity++;
+        item.totalPrice += item.price;
+        state.totalPrice += item.price;
+        state.totalQuantity++;
+      }
+    },
+    decrementQuantity(state, action) {
+      const id = action.payload;
+      const item = state.products.find((item) => item.id === id);
+      if (item && item.quantity > 1) {
+        item.quantity--;
+        item.totalPrice -= item.price;
+        state.totalPrice -= item.price;
+        state.totalQuantity--;
+      }
+    },
+    clearCart(state) {
+      state.products = [];
+      state.totalQuantity = 0;
+      state.totalPrice = 0;
+    },
   },
 });
 
-export const { addToCart } = cartSlice.actions;
+export const {
+  addToCart,
+  removeFromCart,
+  incrementQuantity,
+  decrementQuantity,
+  clearCart,
+} = cartSlice.actions;
 export default cartSlice.reducer;

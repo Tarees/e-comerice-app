@@ -1,13 +1,31 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { FaTrash } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Model from "../components/Model";
+import {
+  removeFromCart,
+  incrementQuantity,
+  decrementQuantity,
+} from "../redux/CartSlice";
+
 const Cart = () => {
   const cart = useSelector((state) => state.cart);
+  const { isAuthenticated } = useSelector((state) => state.auth);
   const [address, setAddress] = useState("Main Street, New York, USA");
   const [isModelOpen, setIsModelOpen] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleCheckout = () => {
+    if (!isAuthenticated) {
+      alert("Please login to proceed to checkout");
+      navigate("/login");
+      return;
+    }
+    navigate("/checkout");
+  };
 
   return (
     <div className="container mx-auto py-8 min-h-96 px-4 md:px-16 lg:px-24">
@@ -57,11 +75,21 @@ const Cart = () => {
 
                       {/* Quantity Control */}
                       <div className="flex items-center justify-center border rounded-md">
-                        <button className="text-sm font-bold px-2 py-1 border-r hover:bg-gray-200">
+                        <button
+                          className="text-sm font-bold px-2 py-1 border-r hover:bg-gray-200"
+                          onClick={() =>
+                            dispatch(decrementQuantity(product.id))
+                          }
+                        >
                           -
                         </button>
                         <p className="text-sm px-3">{product.quantity}</p>
-                        <button className="text-sm font-bold px-2 py-1 border-l hover:bg-gray-200">
+                        <button
+                          className="text-sm font-bold px-2 py-1 border-l hover:bg-gray-200"
+                          onClick={() =>
+                            dispatch(incrementQuantity(product.id))
+                          }
+                        >
                           +
                         </button>
                       </div>
@@ -70,7 +98,10 @@ const Cart = () => {
                         ${(product.quantity * product.price).toFixed(2)}
                       </p>
 
-                      <button className="text-red-500 hover:text-red-700 transition">
+                      <button
+                        className="text-red-500 hover:text-red-700 transition"
+                        onClick={() => dispatch(removeFromCart(product.id))}
+                      >
                         <FaTrash />
                       </button>
                     </div>
@@ -105,14 +136,18 @@ const Cart = () => {
                 <span>Total Price:</span>
                 <span>${cart.totalPrice.toFixed(2)}</span>
               </div>
-              <button className="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition font-bold">
+              <button
+                onClick={handleCheckout}
+                className="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition font-bold"
+              >
                 Proceed to Checkout
               </button>
             </div>
           </div>
-          <Model isModelOpen={isModelOpen} setIsModelOpen={setIsModelOpen}>
-
-          </Model>
+          <Model
+            isModelOpen={isModelOpen}
+            setIsModelOpen={setIsModelOpen}
+          ></Model>
         </div>
       ) : (
         /* EMPTY CART STATE */
